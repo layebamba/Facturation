@@ -3,8 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.routers import articles
 from app.database import Base, engine
-from app.models.article import Article
-# important : enregistre le modèle
+from app import models # important : enregistre le modèle
 
 Base.metadata.create_all(bind=engine)
 app = FastAPI(
