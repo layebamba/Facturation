@@ -2,7 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.routers import articles
+from app.database import Base, engine
+from app.models.article import Article
+# important : enregistre le modèle
 
+Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="Facturation API",
     description="Gestion de facturation et stock pour boutiques",
