@@ -15,7 +15,8 @@ app = FastAPI(
 # CORS : autorise le front Vite en local (leçon retenue de BuyGuinar 😉)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["http://localhost:5173",
+                   "https://facturation-eosin.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
