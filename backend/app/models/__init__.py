@@ -1,3 +1,3 @@
 from app.models.article import Article
-
-__all__ = ["Article"]
+from app.models.client import Client
+__all__ = ["Article","Client"]

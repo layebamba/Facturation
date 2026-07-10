@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import articles
+from app.routers import articles, clients
 from app.database import Base, engine
 from app import models # important : enregistre le modèle
 
@@ -23,6 +23,7 @@ app.add_middleware(
 )
 
 app.include_router(articles.router)
+app.include_router(clients.router)
 
 
 @app.get("/")
