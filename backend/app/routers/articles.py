@@ -12,6 +12,20 @@ router = APIRouter(prefix="/articles", tags=["Articles"])
 def lister_articles(db: Session = Depends(get_db)):
     return db.query(Article).all()
 
+@router.get("/recherche", response_model=list[ArticleLecture])
+def rechercher_articles(q: str, db: Session = Depends(get_db)):
+    """Autocomplétion : cherche dans la désignation ET la référence."""
+    terme = f"%{q}%"
+    return (
+        db.query(Article)
+        .filter(
+            (Article.designation.ilike(terme)) | (Article.reference.ilike(terme))
+        )
+        .order_by(Article.designation)
+        .limit(10)
+        .all()
+    )
+
 @router.get("/{article_id}", response_model=ArticleLecture)
 def obtenir_article(article_id: int, db: Session = Depends(get_db)):
     article = db.query(Article).filter(Article.id == article_id).first()
