@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.models import Article, Client, Facture, LigneFacture, TAUX_TVA
+from app.models import Article, Client, Facture, LigneFacture, Paiement, TAUX_TVA
 from app.schemas.facture import FactureCreation
 
 
@@ -39,6 +39,7 @@ def obtenir_ou_creer_client(db: Session, infos) -> Client:
     db.add(client)
     db.flush()  # obtient client.id sans committer (reste dans la transaction)
     return client
+
 def creer_facture(db: Session, donnees: FactureCreation):
     # 1. Retrouver ou créer le client (clé : le téléphone)
     client = obtenir_ou_creer_client(db, donnees.client)
@@ -114,6 +115,7 @@ def creer_facture(db: Session, donnees: FactureCreation):
     db.refresh(facture)
 
     return facture, alertes
+
 def ajouter_lignes(db: Session, facture_id: int, nouvelles_lignes) -> tuple:
     facture = db.query(Facture).filter(Facture.id == facture_id).first()
     if not facture:
@@ -175,7 +177,7 @@ def ajouter_lignes(db: Session, facture_id: int, nouvelles_lignes) -> tuple:
     return facture, alertes
 
 
-def valider_facture(db: Session, facture_id: int) -> Facture:
+def valider_facture(db: Session, facture_id: int, paiement=None) -> Facture:
     facture = db.query(Facture).filter(Facture.id == facture_id).first()
     if not facture:
         raise HTTPException(status_code=404, detail="Facture introuvable")
@@ -183,9 +185,23 @@ def valider_facture(db: Session, facture_id: int) -> Facture:
         raise HTTPException(status_code=409, detail="Facture déjà validée")
 
     facture.statut = "validee"
+
+    # Encaissement immédiat optionnel (cas courant : le client paie à la caisse)
+    if paiement:
+        if paiement.montant > facture.total_ttc:
+            raise HTTPException(
+                status_code=409,
+                detail=f"Montant trop élevé : total à payer {facture.total_ttc} F",
+            )
+        facture.paiements.append(Paiement(
+            montant=paiement.montant,
+            mode=paiement.mode,
+        ))
+
     db.commit()
     db.refresh(facture)
     return facture
+
 def rouvrir_facture(db: Session, facture_id: int) -> Facture:
     facture = db.query(Facture).filter(Facture.id == facture_id).first()
     if not facture:
@@ -222,6 +238,33 @@ def retirer_ligne(db: Session, facture_id: int, ligne_id: int) -> Facture:
     facture.total_ttc = facture.total_ht + facture.total_tva
     facture.lignes.remove(ligne)   # delete-orphan s'occupe de la suppression en base
 
+    db.commit()
+    db.refresh(facture)
+    return facture
+
+def encaisser_paiement(db: Session, facture_id: int, donnees) -> Facture:
+    facture = db.query(Facture).filter(Facture.id == facture_id).first()
+    if not facture:
+        raise HTTPException(status_code=404, detail="Facture introuvable")
+    if facture.statut != "validee":
+        raise HTTPException(
+            status_code=409,
+            detail="Seule une facture validée peut être encaissée",
+        )
+
+    reste = facture.reste_a_payer
+    if reste <= 0:
+        raise HTTPException(status_code=409, detail="Facture déjà entièrement payée")
+    if donnees.montant > reste:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Montant trop élevé : reste à payer {reste} F",
+        )
+
+    facture.paiements.append(Paiement(
+        montant=donnees.montant,
+        mode=donnees.mode,
+    ))
     db.commit()
     db.refresh(facture)
     return facture

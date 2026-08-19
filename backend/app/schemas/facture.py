@@ -36,6 +36,25 @@ class LigneFactureLecture(BaseModel):
     class Config:
         from_attributes = True
 
+class PaiementCreation(BaseModel):
+    montant: Decimal = Field(gt=0, decimal_places=2)
+    mode: str = Field(pattern="^(especes|wave|orange_money|virement)$")
+
+
+class ValidationFacture(BaseModel):
+    """Paiement optionnel encaissé au moment de la validation."""
+    paiement: PaiementCreation | None = None
+
+
+class PaiementLecture(BaseModel):
+    id: int
+    montant: Decimal
+    mode: str
+    date_paiement: datetime
+
+    class Config:
+        from_attributes = True
+
 
 class FactureLecture(BaseModel):
     id: int
@@ -47,6 +66,10 @@ class FactureLecture(BaseModel):
     total_tva: Decimal
     total_ttc: Decimal
     lignes: list[LigneFactureLecture]
+    paiements: list[PaiementLecture] = []
+    montant_paye: Decimal
+    reste_a_payer: Decimal
+    statut_paiement: str
 
     class Config:
         from_attributes = True

@@ -3,9 +3,10 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import Facture
-from app.schemas.facture import FactureCreation, FactureLecture, FactureReponse, LigneFactureCreation
+from app.schemas.facture import FactureCreation, FactureLecture, FactureReponse, PaiementCreation, LigneFactureCreation, \
+    ValidationFacture
 from app.services.facture_service import (
-    creer_facture, ajouter_lignes, valider_facture,
+    creer_facture, ajouter_lignes, valider_facture, encaisser_paiement,
     rouvrir_facture, retirer_ligne,
 )
 
@@ -50,5 +51,17 @@ def ajouter_articles(
 
 
 @router.post("/{facture_id}/valider", response_model=FactureLecture)
-def valider(facture_id: int, db: Session = Depends(get_db)):
-    return valider_facture(db, facture_id)
+def valider(
+        facture_id: int,
+        donnees: ValidationFacture | None = None,
+        db: Session = Depends(get_db),
+):
+    paiement = donnees.paiement if donnees else None
+    return valider_facture(db, facture_id, paiement)
+@router.post("/{facture_id}/paiements", response_model=FactureLecture)
+def encaisser(
+        facture_id: int,
+        donnees: PaiementCreation,
+        db: Session = Depends(get_db),
+):
+    return encaisser_paiement(db, facture_id, donnees)

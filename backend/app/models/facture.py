@@ -1,4 +1,6 @@
 from datetime import datetime
+from decimal import Decimal
+
 from sqlalchemy import Column, Integer, String, Numeric, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -21,9 +23,33 @@ class Facture(Base):
     nb_reouvertures = Column(Integer, nullable=False, default=0)
     date_derniere_modification = Column(DateTime, nullable=True)
 
+    # ---- Relations ----
     client = relationship("Client")
     lignes = relationship(
         "LigneFacture",
         back_populates="facture",
         cascade="all, delete-orphan",
     )
+    paiements = relationship(
+        "Paiement",
+        back_populates="facture",
+        cascade="all, delete-orphan",
+    )
+
+    # ---- Propriétés calculées ----
+
+    @property
+    def montant_paye(self):
+        return sum((p.montant for p in self.paiements), Decimal("0.00"))
+
+    @property
+    def reste_a_payer(self):
+        return self.total_ttc - self.montant_paye
+
+    @property
+    def statut_paiement(self):
+        if self.montant_paye == 0:
+            return "impayee"
+        if self.reste_a_payer > 0:
+            return "partielle"
+        return "payee"
