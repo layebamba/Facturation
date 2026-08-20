@@ -56,3 +56,35 @@ export async function supprimerArticle(id) {
     await verifier(res, "Impossible de supprimer l'article")
     // 204 : pas de corps à lire
 }
+
+export async function listerClients() {
+    const res = await fetch(`${API_URL}/clients`)
+    await verifier(res, 'Impossible de charger les clients')
+    return res.json()
+}
+
+export async function creerClient(donnees) {
+    const res = await fetch(`${API_URL}/clients`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(donnees),
+    })
+    await verifier(res, 'Impossible de créer le client')
+    return res.json()
+}
+
+export async function modifierClient(id, donnees) {
+    const res = await fetch(`${API_URL}/clients/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(donnees),
+    })
+    await verifier(res, 'Impossible de modifier le client')
+    return res.json()
+}
+
+export async function basculerActivationClient(id) {
+    const res = await fetch(`${API_URL}/clients/${id}/activation`, { method: 'PATCH' })
+    await verifier(res, "Impossible de changer l'état du client")
+    return res.json()
+}

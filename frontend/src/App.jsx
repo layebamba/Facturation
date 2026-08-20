@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, NavLink, Navigate } from 'react-router-dom'
 import Articles from './pages/Articles'
+import Clients from './pages/Clients'
 
 const styleLien = ({ isActive }) => ({
     padding: '0.5rem 1rem',
@@ -27,6 +28,7 @@ export default function App() {
             <Routes>
                 <Route path="/" element={<Navigate to="/articles" replace />} />
                 <Route path="/articles" element={<Articles />} />
+                <Route path="/clients" element={<Clients />} />
                 <Route path="*" element={<p style={{ padding: '2rem' }}>Page introuvable.</p>} />
             </Routes>
         </BrowserRouter>

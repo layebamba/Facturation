@@ -41,14 +41,17 @@ def modifier_client(
     db.refresh(client)
     return client
 
-@router.delete("/{client_id}", status_code=204)
-def supprimer_client(client_id: int, db: Session = Depends(get_db)):
+@router.patch("/{client_id}/activation", response_model=ClientLecture)
+def basculer_activation(client_id: int, db: Session = Depends(get_db)):
+    """Active ou désactive un client (on ne supprime jamais : traçabilité)."""
     client = db.query(Client).filter(Client.id == client_id).first()
     if not client:
         raise HTTPException(status_code=404, detail="Client introuvable")
 
-    db.delete(client)
+    client.actif = not client.actif
     db.commit()
+    db.refresh(client)
+    return client
 
 @router.post("", response_model=ClientLecture, status_code=201)
 def creer_client(donnees: ClientCreation, db: Session = Depends(get_db)):

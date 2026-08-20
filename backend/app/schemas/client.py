@@ -12,10 +12,11 @@ class ClientCreation(BaseModel):
 class ClientLecture(BaseModel):
     id: int
     nom :str
-    prenom: str
-    telephone :int
-    email :str
-    adresse: str
+    prenom: str| None = None
+    telephone :str
+    email :str | None = None
+    adresse: str | None = None
+    actif: bool
 
     class Config:
         from_attributes = True
