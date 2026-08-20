@@ -19,6 +19,7 @@ def rechercher_articles(q: str, db: Session = Depends(get_db)):
     return (
         db.query(Article)
         .filter(
+            Article.actif.is_(True),
             (Article.designation.ilike(terme)) | (Article.reference.ilike(terme))
         )
         .order_by(Article.designation)
@@ -61,15 +62,17 @@ def modifier_article(
     return article
 
 
-@router.delete("/{article_id}", status_code=204)
-def supprimer_article(article_id: int, db: Session = Depends(get_db)):
+@router.patch("/{article_id}/activation", response_model=ArticleLecture)
+def basculer_activation(article_id: int, db: Session = Depends(get_db)):
+    """Active ou désactive un article (on ne supprime jamais : traçabilité et inventaire)."""
     article = db.query(Article).filter(Article.id == article_id).first()
     if not article:
         raise HTTPException(status_code=404, detail="Article introuvable")
- 
-    db.delete(article)
-    db.commit()
 
+    article.actif = not article.actif
+    db.commit()
+    db.refresh(article)
+    return article
 
 @router.post("", response_model=ArticleLecture, status_code=201)
 def creer_article(donnees: ArticleCreation, db: Session = Depends(get_db)):

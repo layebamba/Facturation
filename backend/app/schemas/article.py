@@ -17,6 +17,7 @@ class ArticleLecture(BaseModel):
     prix_unitaire_ht: Decimal
     quantite_stock: int
     seuil_alerte: int
+    actif: bool
 
     class Config:
         from_attributes = True  # permet de convertir l'objet SQLAlchemy en JSON
