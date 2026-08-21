@@ -3,7 +3,7 @@ import {
     listerArticles,
     creerArticle,
     modifierArticle,
-    supprimerArticle,
+    basculerActivationArticle
 } from '../api'
 import FormulaireArticle from '../components/FormulaireArticle'
 
@@ -22,7 +22,11 @@ export default function Articles() {
         }
     }
 
-    useEffect(() => { recharger() }, [])
+    useEffect(() => {  let annule = false
+        listerArticles()
+            .then((data) => { if (!annule) { setArticles(data); setErreur(null) } })
+            .catch((e) => { if (!annule) setErreur(e.message) })
+        return () => { annule = true }}, [])
 
     function ouvrirCreation() {
         setArticleEnEdition(null)
@@ -54,11 +58,11 @@ export default function Articles() {
             setErreur(e.message)   // le formulaire reste ouvert pour correction
         }
     }
-
-    async function supprimer(article) {
-        if (!confirm(`Supprimer « ${article.designation} » ?`)) return
+    async function basculer(article) {
+        const action = article.actif ? 'Désactiver' : 'Réactiver'
+        if (!confirm(`${action} « ${article.designation} » ?`)) return
         try {
-            await supprimerArticle(article.id)
+            await basculerActivationArticle(article.id)
             await recharger()
         } catch (e) {
             setErreur(e.message)
@@ -120,8 +124,8 @@ export default function Articles() {
                             <td style={{ textAlign: 'right' }}>{a.seuil_alerte}</td>
                             <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                                 <button onClick={() => ouvrirEdition(a)}>Modifier</button>{' '}
-                                <button onClick={() => supprimer(a)} style={{ color: 'crimson' }}>
-                                    Supprimer
+                                <button onClick={() => basculer(a)}>
+                                    {a.actif ? 'Désactiver' : 'Réactiver'}
                                 </button>
                             </td>
                         </tr>

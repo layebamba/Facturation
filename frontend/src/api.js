@@ -51,12 +51,6 @@ export async function modifierArticle(id, donnees) {
     return res.json()
 }
 
-export async function supprimerArticle(id) {
-    const res = await fetch(`${API_URL}/articles/${id}`, { method: 'DELETE' })
-    await verifier(res, "Impossible de supprimer l'article")
-    // 204 : pas de corps à lire
-}
-
 export async function listerClients() {
     const res = await fetch(`${API_URL}/clients`)
     await verifier(res, 'Impossible de charger les clients')
@@ -86,5 +80,10 @@ export async function modifierClient(id, donnees) {
 export async function basculerActivationClient(id) {
     const res = await fetch(`${API_URL}/clients/${id}/activation`, { method: 'PATCH' })
     await verifier(res, "Impossible de changer l'état du client")
+    return res.json()
+}
+export async function basculerActivationArticle(id) {
+    const res = await fetch(`${API_URL}/articles/${id}/activation`, { method: 'PATCH' })
+    await verifier(res, "Impossible de changer l'état de l'article")
     return res.json()
 }
