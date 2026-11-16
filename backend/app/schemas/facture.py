@@ -55,12 +55,22 @@ class PaiementLecture(BaseModel):
     class Config:
         from_attributes = True
 
+class ClientLectureFacture(BaseModel):
+    id: int
+    nom: str
+    prenom: str | None = None
+    telephone: str
 
+    class Config:
+        from_attributes = True
 class FactureLecture(BaseModel):
     id: int
     numero: str
     date_creation: datetime
     statut: str
+    client: ClientLectureFacture
+    nb_reouvertures: int = 0
+    date_derniere_modification: datetime | None = None
     client_id: int
     total_ht: Decimal
     total_tva: Decimal

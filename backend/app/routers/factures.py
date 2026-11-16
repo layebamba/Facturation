@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from fastapi.responses import Response
+from sqlalchemy.orm import Session, selectinload
 
 from app.database import get_db
 from app.models import Facture
@@ -9,6 +10,7 @@ from app.services.facture_service import (
     creer_facture, ajouter_lignes, valider_facture, encaisser_paiement,
     rouvrir_facture, retirer_ligne,
 )
+from app.services.pdf_facture import generer_pdf_facture
 
 router = APIRouter(prefix="/factures", tags=["Factures"])
 
@@ -65,3 +67,24 @@ def encaisser(
         db: Session = Depends(get_db),
 ):
     return encaisser_paiement(db, facture_id, donnees)
+@router.get("/{facture_id}/pdf")
+def telecharger_pdf_facture(facture_id: int, db: Session = Depends(get_db)):
+    facture = (
+        db.query(Facture)
+        .options(
+            selectinload(Facture.client),
+            selectinload(Facture.lignes),
+            selectinload(Facture.paiements),
+        )
+        .filter(Facture.id == facture_id)
+        .first()
+    )
+    if not facture:
+        raise HTTPException(status_code=404, detail="Facture introuvable")
+
+    pdf = generer_pdf_facture(facture)
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'inline; filename="{facture.numero}.pdf"'},
+    )

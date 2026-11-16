@@ -40,54 +40,50 @@ export default function FormulaireArticle({ article, onValider, onAnnuler }) {
         Number(valeurs.prix_unitaire_ht) > 0
 
     return (
-        <div style={{
-            border: '1px solid #ddd',
-            borderRadius: 6,
-            padding: '1rem',
-            marginBottom: '1.5rem',
-            background: '#fafafa',
-        }}>
-            <h3 style={{ marginTop: 0 }}>
-                {article ? `Modifier « ${article.designation} »` : 'Nouvel article'}
-            </h3>
+        <div className="panneau">
+            <h3>{article ? `Modifier « ${article.designation} »` : 'Nouvel article'}</h3>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '0.75rem' }}>
-                <input
-                    placeholder="Référence"
-                    value={valeurs.reference}
-                    onChange={changer('reference')}
-                />
-                <input
-                    placeholder="Désignation"
-                    value={valeurs.designation}
-                    onChange={changer('designation')}
-                />
+            <div className="champs">
+                <label className="champ">
+                    Référence *
+                    <input value={valeurs.reference} onChange={changer('reference')} />
+                </label>
+                <label className="champ large">
+                    Désignation *
+                    <input value={valeurs.designation} onChange={changer('designation')} />
+                </label>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem', marginTop: '0.75rem' }}>
-                <input
-                    type="number" step="0.01" min="0.01"
-                    placeholder="Prix HT"
-                    value={valeurs.prix_unitaire_ht}
-                    onChange={changer('prix_unitaire_ht')}
-                />
-                <input
-                    type="number" min="0"
-                    placeholder="Stock"
-                    value={valeurs.quantite_stock}
-                    onChange={changer('quantite_stock')}
-                />
-                <input
-                    type="number" min="0"
-                    placeholder="Seuil d'alerte"
-                    value={valeurs.seuil_alerte}
-                    onChange={changer('seuil_alerte')}
-                />
+            <div className="champs">
+                <label className="champ">
+                    Prix HT (F) *
+                    <input
+                        type="number" step="0.01" min="0.01"
+                        value={valeurs.prix_unitaire_ht}
+                        onChange={changer('prix_unitaire_ht')}
+                    />
+                </label>
+                <label className="champ">
+                    Stock
+                    <input
+                        type="number" min="0"
+                        value={valeurs.quantite_stock}
+                        onChange={changer('quantite_stock')}
+                    />
+                </label>
+                <label className="champ">
+                    Seuil d'alerte
+                    <input
+                        type="number" min="0"
+                        value={valeurs.seuil_alerte}
+                        onChange={changer('seuil_alerte')}
+                    />
+                </label>
             </div>
 
-            <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
-                <button onClick={soumettre} disabled={!valide || enCours}>
-                    {enCours ? 'Enregistrement…' : article ? 'Modifier' : 'Créer'}
+            <div className="boutons">
+                <button className="principal" onClick={soumettre} disabled={!valide || enCours}>
+                    {enCours ? 'Enregistrement…' : article ? 'Enregistrer les modifications' : 'Créer l\'article'}
                 </button>
                 <button onClick={onAnnuler} disabled={enCours}>Annuler</button>
             </div>

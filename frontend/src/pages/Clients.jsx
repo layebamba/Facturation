@@ -67,18 +67,18 @@ export default function Clients() {
     }
 
     return (
-        <div style={{ maxWidth: 900, margin: '2rem auto', fontFamily: 'system-ui' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h1 style={{ margin: 0 }}>Clients</h1>
+        <div className="page">
+            <div className="entete-page">
+                <h1>Clients</h1>
                 {!formulaireOuvert && (
-                    <button onClick={ouvrirCreation}>+ Nouveau client</button>
+                    <button className="principal" onClick={ouvrirCreation}>+ Nouveau client</button>
                 )}
             </div>
 
-            {erreur && <p style={{ color: 'crimson', marginTop: '1rem' }}>{erreur}</p>}
+            {erreur && <p className="erreur">{erreur}</p>}
 
             {formulaireOuvert && (
-                <div style={{ marginTop: '1rem' }}>
+                <div style={{ marginBottom: '1rem' }}>
                     <FormulaireClient
                         client={clientEnEdition}
                         onValider={valider}
@@ -90,42 +90,41 @@ export default function Clients() {
             {clients.length === 0 && !erreur && <p>Aucun client pour l'instant.</p>}
 
             {clients.length > 0 && (
-                <table width="100%" cellPadding="8" style={{ borderCollapse: 'collapse' }}>
-                    <thead>
-                    <tr style={{ borderBottom: '2px solid #ddd', textAlign: 'left' }}>
-                        <th>Nom</th>
-                        <th>Prénom</th>
-                        <th>Téléphone</th>
-                        <th>Email</th>
-                        <th>État</th>
-                        <th style={{ textAlign: 'right' }}>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {clients.map((c) => (
-                        <tr
-                            key={c.id}
-                            style={{
-                                borderBottom: '1px solid #eee',
-                                background: c.actif ? 'transparent' : '#f5f5f5',
-                                color: c.actif ? 'inherit' : '#999',
-                            }}
-                        >
-                            <td>{c.nom}</td>
-                            <td>{c.prenom || '—'}</td>
-                            <td>{c.telephone}</td>
-                            <td>{c.email || '—'}</td>
-                            <td>{c.actif ? 'Actif' : 'Inactif'}</td>
-                            <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-                                <button onClick={() => ouvrirEdition(c)}>Modifier</button>{' '}
-                                <button onClick={() => basculer(c)}>
-                                    {c.actif ? 'Désactiver' : 'Réactiver'}
-                                </button>
-                            </td>
+                <div className="cadre-tableau">
+                    <table className="liste">
+                        <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Prénom</th>
+                            <th>Téléphone</th>
+                            <th>Email</th>
+                            <th>État</th>
+                            <th className="droite">Actions</th>
                         </tr>
-                    ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        {clients.map((c) => (
+                            <tr key={c.id} className={c.actif ? '' : 'inactif'}>
+                                <td>{c.nom}</td>
+                                <td>{c.prenom || '—'}</td>
+                                <td>{c.telephone}</td>
+                                <td>{c.email || '—'}</td>
+                                <td>
+                                    <span className={`pastille ${c.actif ? 'actif' : 'inactif'}`}>
+                                        {c.actif ? 'Actif' : 'Inactif'}
+                                    </span>
+                                </td>
+                                <td className="actions">
+                                    <button onClick={() => ouvrirEdition(c)}>Modifier</button>{' '}
+                                    <button className="discret" onClick={() => basculer(c)}>
+                                        {c.actif ? 'Désactiver' : 'Réactiver'}
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
             )}
         </div>
     )

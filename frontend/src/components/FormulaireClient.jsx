@@ -50,31 +50,38 @@ export default function FormulaireClient({ client, onValider, onAnnuler }) {
     const valide = valeurs.nom.trim() && valeurs.telephone.trim().length >= 7
 
     return (
-        <div style={{
-            border: '1px solid #ddd',
-            borderRadius: 6,
-            padding: '1rem',
-            marginBottom: '1.5rem',
-            background: '#fafafa',
-        }}>
-            <h3 style={{ marginTop: 0 }}>
-                {client ? `Modifier « ${client.nom} »` : 'Nouveau client'}
-            </h3>
+        <div className="panneau">
+            <h3>{client ? `Modifier « ${client.nom} »` : 'Nouveau client'}</h3>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
-                <input placeholder="Nom *" value={valeurs.nom} onChange={changer('nom')} />
-                <input placeholder="Prénom" value={valeurs.prenom} onChange={changer('prenom')} />
-                <input placeholder="Téléphone *" value={valeurs.telephone} onChange={changer('telephone')} />
+            <div className="champs">
+                <label className="champ">
+                    Nom *
+                    <input value={valeurs.nom} onChange={changer('nom')} />
+                </label>
+                <label className="champ">
+                    Prénom
+                    <input value={valeurs.prenom} onChange={changer('prenom')} />
+                </label>
+                <label className="champ">
+                    Téléphone *
+                    <input value={valeurs.telephone} onChange={changer('telephone')} />
+                </label>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '0.75rem', marginTop: '0.75rem' }}>
-                <input type="email" placeholder="Email" value={valeurs.email} onChange={changer('email')} />
-                <input placeholder="Adresse" value={valeurs.adresse} onChange={changer('adresse')} />
+            <div className="champs">
+                <label className="champ">
+                    Email
+                    <input type="email" value={valeurs.email} onChange={changer('email')} />
+                </label>
+                <label className="champ large">
+                    Adresse
+                    <input value={valeurs.adresse} onChange={changer('adresse')} />
+                </label>
             </div>
 
-            <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
-                <button onClick={soumettre} disabled={!valide || enCours}>
-                    {enCours ? 'Enregistrement…' : client ? 'Modifier' : 'Créer'}
+            <div className="boutons">
+                <button className="principal" onClick={soumettre} disabled={!valide || enCours}>
+                    {enCours ? 'Enregistrement…' : client ? 'Enregistrer les modifications' : 'Créer le client'}
                 </button>
                 <button onClick={onAnnuler} disabled={enCours}>Annuler</button>
             </div>

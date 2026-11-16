@@ -3,7 +3,7 @@ import {
     listerArticles,
     creerArticle,
     modifierArticle,
-    basculerActivationArticle
+    basculerActivationArticle,
 } from '../api'
 import FormulaireArticle from '../components/FormulaireArticle'
 
@@ -22,11 +22,13 @@ export default function Articles() {
         }
     }
 
-    useEffect(() => {  let annule = false
+    useEffect(() => {
+        let annule = false
         listerArticles()
             .then((data) => { if (!annule) { setArticles(data); setErreur(null) } })
             .catch((e) => { if (!annule) setErreur(e.message) })
-        return () => { annule = true }}, [])
+        return () => { annule = true }
+    }, [])
 
     function ouvrirCreation() {
         setArticleEnEdition(null)
@@ -58,6 +60,7 @@ export default function Articles() {
             setErreur(e.message)   // le formulaire reste ouvert pour correction
         }
     }
+
     async function basculer(article) {
         const action = article.actif ? 'Désactiver' : 'Réactiver'
         if (!confirm(`${action} « ${article.designation} » ?`)) return
@@ -70,20 +73,18 @@ export default function Articles() {
     }
 
     return (
-        <div style={{ maxWidth: 900, margin: '2rem auto', fontFamily: 'system-ui' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h1 style={{ margin: 0 }}>Articles — Boutique</h1>
+        <div className="page">
+            <div className="entete-page">
+                <h1>Articles</h1>
                 {!formulaireOuvert && (
-                    <button onClick={ouvrirCreation}>+ Nouvel article</button>
+                    <button className="principal" onClick={ouvrirCreation}>+ Nouvel article</button>
                 )}
             </div>
 
-            {erreur && (
-                <p style={{ color: 'crimson', marginTop: '1rem' }}>{erreur}</p>
-            )}
+            {erreur && <p className="erreur">{erreur}</p>}
 
             {formulaireOuvert && (
-                <div style={{ marginTop: '1rem' }}>
+                <div style={{ marginBottom: '1rem' }}>
                     <FormulaireArticle
                         article={articleEnEdition}
                         onValider={valider}
@@ -95,43 +96,53 @@ export default function Articles() {
             {articles.length === 0 && !erreur && <p>Aucun article pour l'instant.</p>}
 
             {articles.length > 0 && (
-                <table width="100%" cellPadding="8" style={{ borderCollapse: 'collapse' }}>
-                    <thead>
-                    <tr style={{ borderBottom: '2px solid #ddd', textAlign: 'left' }}>
-                        <th>Référence</th>
-                        <th>Désignation</th>
-                        <th style={{ textAlign: 'right' }}>Prix HT</th>
-                        <th style={{ textAlign: 'right' }}>Stock</th>
-                        <th style={{ textAlign: 'right' }}>Seuil</th>
-                        <th style={{ textAlign: 'right' }}>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {articles.map((a) => (
-                        <tr
-                            key={a.id}
-                            style={{
-                                borderBottom: '1px solid #eee',
-                                background: a.quantite_stock < a.seuil_alerte ? '#fcebeb' : 'transparent',
-                            }}
-                        >
-                            <td>{a.reference}</td>
-                            <td>{a.designation}</td>
-                            <td style={{ textAlign: 'right' }}>
-                                {Number(a.prix_unitaire_ht).toLocaleString('fr-FR')} F
-                            </td>
-                            <td style={{ textAlign: 'right' }}>{a.quantite_stock}</td>
-                            <td style={{ textAlign: 'right' }}>{a.seuil_alerte}</td>
-                            <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-                                <button onClick={() => ouvrirEdition(a)}>Modifier</button>{' '}
-                                <button onClick={() => basculer(a)}>
-                                    {a.actif ? 'Désactiver' : 'Réactiver'}
-                                </button>
-                            </td>
+                <div className="cadre-tableau">
+                    <table className="liste">
+                        <thead>
+                        <tr>
+                            <th>Référence</th>
+                            <th>Désignation</th>
+                            <th className="droite">Prix HT</th>
+                            <th className="droite">Stock</th>
+                            <th className="droite">Seuil</th>
+                            <th>État</th>
+                            <th className="droite">Actions</th>
                         </tr>
-                    ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        {articles.map((a) => {
+                            const enAlerte = a.quantite_stock < a.seuil_alerte
+                            return (
+                                <tr
+                                    key={a.id}
+                                    className={!a.actif ? 'inactif' : enAlerte ? 'alerte' : ''}
+                                >
+                                    <td>{a.reference}</td>
+                                    <td>{a.designation}</td>
+                                    <td className="droite">
+                                        {Number(a.prix_unitaire_ht).toLocaleString('fr-FR')} F
+                                    </td>
+                                    <td className="droite">
+                                        {enAlerte ? <strong>{a.quantite_stock}</strong> : a.quantite_stock}
+                                    </td>
+                                    <td className="droite">{a.seuil_alerte}</td>
+                                    <td>
+                                        <span className={`pastille ${a.actif ? 'actif' : 'inactif'}`}>
+                                            {a.actif ? 'Actif' : 'Inactif'}
+                                        </span>
+                                    </td>
+                                    <td className="actions">
+                                        <button onClick={() => ouvrirEdition(a)}>Modifier</button>{' '}
+                                        <button className="discret" onClick={() => basculer(a)}>
+                                            {a.actif ? 'Désactiver' : 'Réactiver'}
+                                        </button>
+                                    </td>
+                                </tr>
+                            )
+                        })}
+                        </tbody>
+                    </table>
+                </div>
             )}
         </div>
     )
